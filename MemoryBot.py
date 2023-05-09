@@ -46,18 +46,18 @@ encoding_name ='cl100k_base'
 
 #setting up the keys
 openai.api_type = "azure"
-openai.api_base = 'https://endpoint.openai.azure.com/'
+openai.api_base = 
 openai.api_version = "2023-03-15-preview"
-openai.api_key = '487bb3c64c354640b8c30790bc62d085'
-os.environ['OPENAI_API_KEY'] = openai.api_key = '487bb3c64c354640b8c30790bc62d085'
+openai.api_key = 
+os.environ['OPENAI_API_KEY'] = openai.api_key = 
 
-endpoint = "https://multipurpose-cognitive-service.cognitiveservices.azure.com/"
-key = "0cf177cf1d5b406f8266a386070294eb"
+endpoint = 
+key = 
 
-cosmos_endpoint = 'https://langchain-cosmosdb.documents.azure.com:443/'
-cosmos_db = 'ChatHistoryDB'
-cosmos_container = 'ChatContainer'
-cosmos_connection_string ='AccountEndpoint=https://langchain-cosmosdb.documents.azure.com:443/;AccountKey=oiYG2qIFCzu4owEQcginPiWHKOsgkNvScTcLiLKnrITKdFeJOfUEqX9w6pei2ujrQXYEIkQMTPHJACDbFmxDAg==;'
+cosmos_endpoint = 
+cosmos_db = 
+cosmos_container = 
+cosmos_connection_string =
 user_id = 'PDFgpt'
 session_id = '01'
 # Normalizing text to remove \n and other seperators
