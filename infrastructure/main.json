@@ -1,0 +1,847 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.17.1.54307",
+      "templateHash": "6739262197416562425"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "baseName": {
+      "type": "string",
+      "defaultValue": "pdfgptdemo",
+      "metadata": {
+        "description": "Base name that will appear for all resources."
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "Three letter environment abreviation to denote environment that will appear in all resource names"
+      }
+    },
+    "formRecognizerSKU": {
+      "type": "string",
+      "metadata": {
+        "description": "Form Recognizer Sku"
+      }
+    }
+  },
+  "variables": {
+    "regionReference": {
+      "centralus": "cus",
+      "eastus": "eus",
+      "westus": "wus",
+      "westus2": "wus2"
+    },
+    "nameSuffix": "[toLower(format('{0}-{1}-{2}', parameters('baseName'), parameters('environmentName'), variables('regionReference')[parameters('location')]))]",
+    "nameShort": "[toLower(format('{0}{1}{2}', parameters('baseName'), parameters('environmentName'), variables('regionReference')[parameters('location')]))]",
+    "language": "Bicep",
+    "dnsLabel": "pdfgptdemo",
+    "aciImageNameTag": "pdfgptDemo:latest",
+    "aciImage": "streamlitapp"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "Customer": "FlavorsIaC",
+        "Language": "[variables('language')]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "userIdentityModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "userIdentityName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "18358639871886346800"
+            }
+          },
+          "parameters": {
+            "userIdentityName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Azure Key Vault"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[toLower(format('ui-{0}', parameters('userIdentityName')))]",
+              "location": "[parameters('location')]",
+              "tags": {
+                "language": "[parameters('language')]"
+              }
+            }
+          ],
+          "outputs": {
+            "userAssignedIdentityOutput": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', toLower(format('ui-{0}', parameters('userIdentityName'))))]"
+            },
+            "userIdentityPrincipalOutput": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', toLower(format('ui-{0}', parameters('userIdentityName')))), '2018-11-30').principalId]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "formRecognizerModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          },
+          "formRecognizerSKU": {
+            "value": "[parameters('formRecognizerSKU')]"
+          },
+          "formRecognizerName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "keyVaultName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule'), '2022-09-01').outputs.keyVaultNameOutput.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "8598599150532849626"
+            }
+          },
+          "parameters": {
+            "formRecognizerName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Form Recognizer resource."
+              }
+            },
+            "formRecognizerSKU": {
+              "type": "string",
+              "defaultValue": "S0",
+              "allowedValues": [
+                "F0",
+                "S0"
+              ],
+              "metadata": {
+                "description": "SKU for Form Recognizer"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            },
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of KeyVault to store values in"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2022-12-01",
+              "name": "[toLower(format('fr-{0}', parameters('formRecognizerName')))]",
+              "location": "[parameters('location')]",
+              "kind": "FormRecognizer",
+              "sku": {
+                "name": "S0"
+              },
+              "properties": {
+                "customSubDomainName": "[parameters('formRecognizerName')]"
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "tags": {
+                "language": "[parameters('language')]"
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'form-recognizer-endpoint')]",
+              "properties": {
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', toLower(format('fr-{0}', parameters('formRecognizerName')))), '2022-12-01').endpoint]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', toLower(format('fr-{0}', parameters('formRecognizerName'))))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'form-recognizer-key')]",
+              "properties": {
+                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', toLower(format('fr-{0}', parameters('formRecognizerName')))), '2022-12-01').key1]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', toLower(format('fr-{0}', parameters('formRecognizerName'))))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "acrModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "acrName": {
+            "value": "[variables('nameShort')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "6783655914676629318"
+            }
+          },
+          "parameters": {
+            "acrName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Form Recognizer resource."
+              }
+            },
+            "acrSKU": {
+              "type": "string",
+              "defaultValue": "Standard",
+              "allowedValues": [
+                "Basic",
+                "Standard",
+                "Premium"
+              ],
+              "metadata": {
+                "description": "SKU for Form Recognizer"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerRegistry/registries",
+              "apiVersion": "2023-01-01-preview",
+              "name": "[toLower(format('acr{0}', parameters('acrName')))]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[parameters('acrSKU')]"
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "adminUserEnabled": false
+              },
+              "tags": {
+                "language": "[parameters('language')]"
+              }
+            }
+          ],
+          "outputs": {
+            "acrNameOutput": {
+              "type": "string",
+              "value": "[toLower(format('acr{0}', parameters('acrName')))]"
+            },
+            "acrLoginServerOutput": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', toLower(format('acr{0}', parameters('acrName')))), '2023-01-01-preview').loginServer]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "aciModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "aciName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          },
+          "acrName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'acrModule'), '2022-09-01').outputs.acrNameOutput.value]"
+          },
+          "dnsLabel": {
+            "value": "[variables('dnsLabel')]"
+          },
+          "aciImageNameTag": {
+            "value": "[format('{0}/{1}', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'acrModule'), '2022-09-01').outputs.acrLoginServerOutput.value, variables('aciImageNameTag'))]"
+          },
+          "aciImage": {
+            "value": "[variables('aciImage')]"
+          },
+          "uidName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'userIdentityModule'), '2022-09-01').outputs.userAssignedIdentityOutput.value]"
+          },
+          "userIdentityPrincipalId": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'userIdentityModule'), '2022-09-01').outputs.userIdentityPrincipalOutput.value]"
+          },
+          "keyVaultName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule'), '2022-09-01').outputs.keyVaultNameOutput.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "3300289826908261997"
+            }
+          },
+          "parameters": {
+            "aciName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Form Recognizer resource."
+              }
+            },
+            "aciImage": {
+              "type": "string",
+              "metadata": {
+                "description": "Image Name"
+              }
+            },
+            "aciImageNameTag": {
+              "type": "string",
+              "metadata": {
+                "description": "Image Name and Tag"
+              }
+            },
+            "aciSKU": {
+              "type": "string",
+              "defaultValue": "Standard",
+              "allowedValues": [
+                "Standard",
+                "Confidental",
+                "Dedicated"
+              ],
+              "metadata": {
+                "description": "SKU for Azure Container Instance."
+              }
+            },
+            "imagecpu": {
+              "type": "int",
+              "defaultValue": 2,
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "imagemem": {
+              "type": "string",
+              "defaultValue": "1.5"
+            },
+            "location": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            },
+            "osType": {
+              "type": "string",
+              "defaultValue": "Linux",
+              "allowedValues": [
+                "Linux",
+                "Windows"
+              ],
+              "metadata": {
+                "description": "What OS type was used to deploy this resource"
+              }
+            },
+            "dnsLabel": {
+              "type": "string",
+              "metadata": {
+                "description": "DNS Label Name"
+              }
+            },
+            "acrName": {
+              "type": "string",
+              "metadata": {
+                "description": "ACR Name"
+              }
+            },
+            "uidName": {
+              "type": "string",
+              "metadata": {
+                "description": "User Assigned Identity"
+              }
+            },
+            "userIdentityPrincipalId": {
+              "type": "string",
+              "metadata": {
+                "description": "User Assigned Principal"
+              }
+            },
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of KeyVault to store values in"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerInstance/containerGroups",
+              "apiVersion": "2023-05-01",
+              "name": "[format('aci-{0}', parameters('aciName'))]",
+              "location": "[parameters('location')]",
+              "tags": {
+                "language": "[parameters('language')]"
+              },
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', parameters('userIdentityPrincipalId'))]": {}
+                }
+              },
+              "properties": {
+                "sku": "[parameters('aciSKU')]",
+                "containers": [
+                  {
+                    "name": "[parameters('aciImage')]",
+                    "properties": {
+                      "image": "[parameters('aciImageNameTag')]",
+                      "ports": [
+                        {
+                          "port": 80,
+                          "protocol": "TCP"
+                        },
+                        {
+                          "port": 443,
+                          "protocol": "TCP"
+                        }
+                      ],
+                      "resources": {
+                        "requests": {
+                          "cpu": "[parameters('imagecpu')]",
+                          "memoryInGB": "[parameters('imagemem')]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "ipAddress": {
+                  "ports": [
+                    {
+                      "port": 80,
+                      "protocol": "TCP"
+                    },
+                    {
+                      "port": 443,
+                      "protocol": "TCP"
+                    }
+                  ],
+                  "type": "Public",
+                  "dnsNameLabel": "[parameters('dnsLabel')]"
+                },
+                "osType": "[parameters('osType')]"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', parameters('acrName'))]",
+              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d'))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            },
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2022-04-01",
+              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
+              "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6'))]",
+              "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'acrModule')]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]",
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'userIdentityModule')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "openAIModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "openAIName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          },
+          "keyVaultName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule'), '2022-09-01').outputs.keyVaultNameOutput.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "11172717053715646187"
+            }
+          },
+          "parameters": {
+            "openAIName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Open AI resource."
+              }
+            },
+            "openAISku": {
+              "type": "string",
+              "defaultValue": "S0",
+              "metadata": {
+                "description": "SKU for OpenAI"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            },
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of KeyVault to store values in"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.CognitiveServices/accounts",
+              "apiVersion": "2023-05-01",
+              "name": "[parameters('openAIName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[parameters('openAISku')]"
+              },
+              "kind": "OpenAI",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', parameters('openAIName'), 'gpt-35-turbo')]",
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "gpt-35-turbo",
+                  "version": "0314"
+                },
+                "scaleSettings": {
+                  "scaleType": "Standard",
+                  "capacity": 10
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.CognitiveServices/accounts/deployments",
+              "apiVersion": "2023-05-01",
+              "name": "[format('{0}/{1}', parameters('openAIName'), 'text-embedding-ada-002')]",
+              "properties": {
+                "model": {
+                  "format": "OpenAI",
+                  "name": "text-embedding-ada-002",
+                  "version": "2"
+                },
+                "scaleSettings": {
+                  "scaleType": "Standard",
+                  "capacity": 120
+                },
+                "raiPolicyName": "Microsoft.Default"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openai-endpoint')]",
+              "properties": {
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2023-05-01').endpoint]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2023-02-01",
+              "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openai-key')]",
+              "properties": {
+                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2023-05-01').key1]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
+              ]
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, toLower(format('rg-{0}', variables('nameSuffix')))), 'Microsoft.Resources/deployments', 'keyVaultModule')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "keyVaultModule",
+      "resourceGroup": "[toLower(format('rg-{0}', variables('nameSuffix')))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "keyVaultName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "14163089364024920322"
+            }
+          },
+          "parameters": {
+            "keyVaultName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Azure Key Vault"
+              }
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "standard",
+              "allowedValues": [
+                "standard",
+                "premium"
+              ],
+              "metadata": {
+                "description": "Sku for the Azure Key Vault"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2023-02-01",
+              "name": "[toLower(format('kv-{0}', parameters('keyVaultName')))]",
+              "location": "[parameters('location')]",
+              "tags": {
+                "language": "[parameters('language')]"
+              },
+              "properties": {
+                "sku": {
+                  "name": "[parameters('sku')]",
+                  "family": "A"
+                },
+                "tenantId": "[subscription().tenantId]",
+                "enabledForDeployment": true,
+                "enabledForTemplateDeployment": true,
+                "enableSoftDelete": true,
+                "softDeleteRetentionInDays": 90,
+                "enablePurgeProtection": true,
+                "enableRbacAuthorization": true
+              }
+            }
+          ],
+          "outputs": {
+            "keyVaultNameOutput": {
+              "type": "string",
+              "value": "[toLower(format('kv-{0}', parameters('keyVaultName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', toLower(format('rg-{0}', variables('nameSuffix'))))]"
+      ]
+    }
+  ]
+}

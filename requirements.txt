@@ -6,3 +6,5 @@ pypdf
 streamlit
 azure.ai.formrecognizer
 azure-cosmos
+azure-identity
+azure-keyvault-secrets
