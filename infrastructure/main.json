@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "6739262197416562425"
+      "templateHash": "8856325406824263639"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
     "nameShort": "[toLower(format('{0}{1}{2}', parameters('baseName'), parameters('environmentName'), variables('regionReference')[parameters('location')]))]",
     "language": "Bicep",
     "dnsLabel": "pdfgptdemo",
-    "aciImageNameTag": "pdfgptDemo:latest",
+    "aciImageNameTag": "pdfgptdemo:latest",
     "aciImage": "streamlitapp"
   },
   "resources": [
@@ -411,7 +411,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "3300289826908261997"
+              "templateHash": "8598788766395633038"
             }
           },
           "parameters": {
@@ -516,12 +516,6 @@
               "tags": {
                 "language": "[parameters('language')]"
               },
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', parameters('userIdentityPrincipalId'))]": {}
-                }
-              },
               "properties": {
                 "sku": "[parameters('aciSKU')]",
                 "containers": [
@@ -562,28 +556,25 @@
                   "type": "Public",
                   "dnsNameLabel": "[parameters('dnsLabel')]"
                 },
-                "osType": "[parameters('osType')]"
-              }
+                "osType": "[parameters('osType')]",
+                "imageRegistryCredentials": [
+                  {
+                    "server": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName')), '2023-01-01-preview').loginServer]",
+                    "identity": "cb7d5cd7-c80a-4b30-9b9e-b0762195df12"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Authorization/roleAssignments', guid(subscription().id, 'cb7d5cd7-c80a-4b30-9b9e-b0762195df12'))]"
+              ]
             },
             {
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', parameters('acrName'))]",
-              "name": "[guid(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d'))]",
+              "name": "[guid(subscription().id, 'cb7d5cd7-c80a-4b30-9b9e-b0762195df12')]",
               "properties": {
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), '2023-01-31').principalId]",
-                "principalType": "ServicePrincipal"
-              }
-            },
-            {
-              "type": "Microsoft.Authorization/roleAssignments",
-              "apiVersion": "2022-04-01",
-              "scope": "[format('Microsoft.KeyVault/vaults/{0}', parameters('keyVaultName'))]",
-              "name": "[guid(resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName')), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6'))]",
-              "properties": {
-                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')]",
-                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uidName')), '2023-01-31').principalId]",
+                "principalId": "cb7d5cd7-c80a-4b30-9b9e-b0762195df12",
                 "principalType": "ServicePrincipal"
               }
             }
@@ -628,7 +619,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "11172717053715646187"
+              "templateHash": "6278375845872927357"
             }
           },
           "parameters": {
@@ -667,7 +658,7 @@
           "resources": [
             {
               "type": "Microsoft.CognitiveServices/accounts",
-              "apiVersion": "2023-05-01",
+              "apiVersion": "2022-12-01",
               "name": "[parameters('openAIName')]",
               "location": "[parameters('location')]",
               "sku": {
@@ -678,26 +669,7 @@
             },
             {
               "type": "Microsoft.CognitiveServices/accounts/deployments",
-              "apiVersion": "2023-05-01",
-              "name": "[format('{0}/{1}', parameters('openAIName'), 'gpt-35-turbo')]",
-              "properties": {
-                "model": {
-                  "format": "OpenAI",
-                  "name": "gpt-35-turbo",
-                  "version": "0314"
-                },
-                "scaleSettings": {
-                  "scaleType": "Standard",
-                  "capacity": 10
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.CognitiveServices/accounts/deployments",
-              "apiVersion": "2023-05-01",
+              "apiVersion": "2022-12-01",
               "name": "[format('{0}/{1}', parameters('openAIName'), 'text-embedding-ada-002')]",
               "properties": {
                 "model": {
@@ -706,8 +678,7 @@
                   "version": "2"
                 },
                 "scaleSettings": {
-                  "scaleType": "Standard",
-                  "capacity": 120
+                  "scaleType": "Standard"
                 },
                 "raiPolicyName": "Microsoft.Default"
               },
@@ -720,7 +691,7 @@
               "apiVersion": "2023-02-01",
               "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openai-endpoint')]",
               "properties": {
-                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2023-05-01').endpoint]"
+                "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2022-12-01').endpoint]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
@@ -731,7 +702,7 @@
               "apiVersion": "2023-02-01",
               "name": "[format('{0}/{1}', parameters('keyVaultName'), 'openai-key')]",
               "properties": {
-                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2023-05-01').key1]"
+                "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName')), '2022-12-01').key1]"
               },
               "dependsOn": [
                 "[resourceId('Microsoft.CognitiveServices/accounts', parameters('openAIName'))]"
