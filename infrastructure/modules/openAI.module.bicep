@@ -14,7 +14,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
 }
 
 
-resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
+resource openAI 'Microsoft.CognitiveServices/accounts@2022-12-01'= {
   name: openAIName
   location: location
   sku: {
@@ -25,24 +25,26 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
   }
 }
 
-resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'gpt-35-turbo'
   properties: {
     model: {
       format: 'OpenAI'
       name: 'gpt-35-turbo'
-      version: '0314'
+      version: '0301'
       
     }
    scaleSettings: {
     scaleType: 'Standard'
-    capacity: 10
+    capacity: 120
+  
    }
+    raiPolicyName:'Microsoft.Default'
   }
 }
 
-resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'text-embedding-ada-002'
   properties: {
@@ -54,11 +56,12 @@ resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-0
     }
    scaleSettings: {
     scaleType: 'Standard'
-    capacity: 120
    }
    raiPolicyName:'Microsoft.Default'
+
   }
 }
+
 
 resource openAIEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
   parent : keyVault
@@ -75,3 +78,4 @@ resource openAIKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
     value: openAI.listKeys().key1
   }
 }
+
