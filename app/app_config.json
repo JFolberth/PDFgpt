@@ -1,0 +1,4 @@
+{
+    "storage_container": "doctest",
+    "connection_string": "DefaultEndpointsProtocol=https;AccountName=datastoragedemodj;AccountKey=ZT8XIzQrlS9oNeO7fbkvBGG4kGEM7jdLZQnrKVg2O3QAWw5o2HbkYeux5DHHRPlYWRr24/D9hJ6u+AStpQcC3A==;EndpointSuffix=core.windows.net"
+}

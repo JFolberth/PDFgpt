@@ -3,6 +3,7 @@ import re
 import os
 import time
 from io import BytesIO
+import json
 from typing import Any, Dict, List
 
 import openai
@@ -36,6 +37,7 @@ from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.ai.formrecognizer import FormRecognizerClient
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
+from azure.storage.blob import BlobServiceClient
 
 #setting up some global variable
 deployment_name = 'gpt-4'
@@ -67,6 +69,64 @@ key = client.get_secret('form-recognizer-key').value
 
 
 
+
+def read_config_data(filename):
+    config_data = json.loads(open(filename).read())
+    if not check_config_data(config_data):
+        print("Config data is not valid")
+        raise Exception("Config data is not valid")
+    return config_data
+
+def check_config_data(config_data):
+    if not "storage_container" in config_data:
+        return False
+    if not "connection_string" in config_data:
+        return False
+    return True
+
+def list_blobs(blob_service_client: BlobServiceClient, container_name):
+    container_client = blob_service_client.get_container_client(container_name)
+    blob_list = container_client.list_blobs()
+    return blob_list
+
+def upload_blob_data(blob_service_client: BlobServiceClient, container_name, data, filename):
+    
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=filename)
+    # Upload the blob data - default blob type is BlockBlob
+    blob_client.upload_blob(data, blob_type="BlockBlob", overwrite=True)
+
+def check_process_file(current_filename):
+    if not ".pdf" in current_filename:
+        return False
+    return True
+
+def get_blob_service_client_connection_string(connection_string):
+    
+    # Create the BlobServiceClient object
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+    return blob_service_client
+
+def load_FAISS_vector_store(config_data):
+    connection_string = config_data["connection_string"]
+    input_container_name = config_data["input_container_name"]
+    blob_service_client = get_blob_service_client_connection_string(connection_string)
+    blob_list = list_blobs(blob_service_client, input_container_name)
+    first_run = True
+    index = None
+    embeddings = OpenAIEmbeddings(deployment=embed_engine,model=embed_engine, chunk_size=1)
+    for blob in blob_list:
+        if check_process_file(blob.name):
+            blob_client = blob_service_client.get_blob_client(container=input_container_name, blob=blob.name)
+            stream = blob_client.download_blob()
+            data = stream.readall()
+            pages = process_pdf(data, blob.name)
+            if first_run:
+                index = initialize_embed(pages, embeddings)
+                first_run = False
+            else:
+                index.add(pages)
+    return index
 #user_id = 'PDFgpt'
 #session_id = '01'
 # Normalizing text to remove \n and other seperators
@@ -167,15 +227,14 @@ def text_to_docs(text: List) -> List[Document]:
 
 # Define a function for the embeddings
 @st.cache_data
-def test_embed():
+def initialize_embed(pages, embeddings):
     #embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    embeddings = OpenAIEmbeddings(deployment=embed_engine,model=embed_engine, chunk_size=1)
     # Indexing
     # Save in a Vector DB
     with st.spinner("It's indexing..."):
         index = FAISS.from_documents(pages, embeddings)
 
-    st.success("Embeddings done.", icon="✅")
+    
     return index
 
 #initializing chat instance from langchain
@@ -223,13 +282,21 @@ st.sidebar.markdown(
     """
 )
 
+config_data = read_config_data("./app_config.json")
+index = load_FAISS_vector_store(config_data)
+st.success("Intiial embeddings done.", icon="✅")
+
+@st.cache_data
+def process_pdf(data):
+    doc = parse_pdf(data)
+    pages = text_to_docs(doc)
+    return pages
 # Allow the user to upload a PDF file
 uploaded_file = st.file_uploader("**Upload Your PDF File**", type=["pdf"])
 
 if uploaded_file:
     name_of_file = uploaded_file.name
-    doc = parse_pdf(uploaded_file)
-    pages = text_to_docs(doc)
+    pages = process_pdf(uploaded_file)
     if pages:
         # Allow the user to select a page and view its content
         with st.expander("Show Page Content", expanded=False):
@@ -239,14 +306,10 @@ if uploaded_file:
             pages[page_sel - 1]
 
         # Test the embeddings and save the index in a vector database
-        index = test_embed()
+        index.add(pages)
         doc_chain = load_qa_with_sources_chain(llm=llm,chain_type="stuff",verbose=True)
         question_generator = LLMChain(llm=llm,prompt=CONDENSE_QUESTION_PROMPT)
         
-
-
-            
-
         # Set up the question-answering system
 
         qa = ConversationalRetrievalChain(
