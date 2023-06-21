@@ -24,7 +24,7 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2022-12-01'= {
   properties: {
   }
 }
-
+/*
 resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'gpt-35-turbo'
@@ -43,7 +43,7 @@ resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2022-1
     raiPolicyName:'Microsoft.Default'
   }
 }
-
+*/
 resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'text-embedding-ada-002'

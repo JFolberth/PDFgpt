@@ -72,7 +72,7 @@ resource aci 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
  
  identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: userAssignedIdentity['Default']
+    userAssignedIdentities: userAssignedIdentity.Default
   }
   properties: {
     sku: aciSKU
