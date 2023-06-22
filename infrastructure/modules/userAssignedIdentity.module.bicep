@@ -15,3 +15,4 @@ resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
 
 output userAssignedIdentityOutput string = uid.id
 output userIdentityPrincipalOutput string = uid.properties.principalId
+output userIdentityNameOutput string = uid.name

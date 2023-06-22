@@ -25,6 +25,7 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
   }
 }
 
+/*
 resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
   parent: openAI
   name: 'gpt-35-turbo'
@@ -59,7 +60,7 @@ resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-0
    raiPolicyName:'Microsoft.Default'
   }
 }
-
+*/
 resource openAIEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
   parent : keyVault
   name: 'openai-endpoint'

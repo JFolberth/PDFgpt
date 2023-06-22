@@ -77,7 +77,7 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
     dnsLabel: dnsLabel
     aciImageNameTag:'${acr.outputs.acrLoginServerOutput}/${aciImageNameTag}'
     aciImage: aciImage
-    uidName: userIdentity.outputs.userAssignedIdentityOutput
+    uidName: userIdentity.outputs.userIdentityNameOutput
     userIdentityPrincipalId: userIdentity.outputs.userIdentityPrincipalOutput
     keyVaultName: keyVault.outputs.keyVaultNameOutput
   }
