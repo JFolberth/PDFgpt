@@ -20,7 +20,7 @@ var nameSuffix = toLower('${baseName}-${environmentName}-${regionReference[locat
 var nameShort = toLower('${baseName}${environmentName}${regionReference[location]}')
 var language = 'Bicep'
 var dnsLabel = 'pdfgptdemo'
-var aciImageNameTag = 'pdfgptDemo:latest'
+var aciImageNameTag = 'pdfgptdemo:latest'
 var aciImage = 'streamlitapp'
 
 /* Since we are mismatching scopes with a deployment at subscription and resource at Resource Group
@@ -65,7 +65,7 @@ module acr 'modules/azureContainerRegistry.module.bicep' ={
     language: language
   }
 }
-
+/*
 module aci 'modules/azureContainerInstance.module.bicep' ={
   name: 'aciModule'
   scope: resourceGroup
@@ -78,11 +78,12 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
     aciImageNameTag:'${acr.outputs.acrLoginServerOutput}/${aciImageNameTag}'
     aciImage: aciImage
     uidName: userIdentity.outputs.userAssignedIdentityOutput
-    userIdentityPrincipalId: userIdentity.outputs.userIdentityPrincipalOutput
     keyVaultName: keyVault.outputs.keyVaultNameOutput
+    acrAdminPassword:keyVaultReference.getSecret('acr-password')
+    acrUserName:keyVaultReference.getSecret('acr-userName')
   }
 }
-
+*/
 module openAI 'modules/openAI.module.bicep'={
   name: 'openAIModule'
   scope: resourceGroup
@@ -102,4 +103,8 @@ module keyVault 'modules/azureKeyVault.module.bicep'={
     keyVaultName: nameSuffix
     language: language
   }
+}
+resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  scope: resourceGroup
+  name: keyVault.outputs.keyVaultNameOutput
 }
