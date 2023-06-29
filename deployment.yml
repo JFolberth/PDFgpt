@@ -5,7 +5,7 @@ properties:
   containers:
   - name: streamlitapp
     properties:
-      image: acrpdfgptdeveus.azurecr.io/pdfgpt:latest
+      image: acrpdfgptdeveus.azurecr.io/pdfgpt2:latest
       ports:
       - port: 80
         protocol: TCP
@@ -16,9 +16,9 @@ properties:
           cpu: 2.0
           memoryInGB: 1.5
   imageRegistryCredentials:
-  - server: severName
-    username: userName
-    password: registryPassword
+  - server: acrpdfgptdeveus.azurecr.io
+    username: acrpdfgptdeveus
+    password: W/DzG52ruyHwhgmd/4rTs8DTAvIGlrXCgUErrFWlEr+ACRCCcw1s
   restartPolicy: Never
   ipAddress:
     ports:
