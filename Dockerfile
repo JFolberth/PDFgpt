@@ -37,4 +37,4 @@ COPY app app
 COPY nginx.conf /etc/nginx/nginx.conf
 USER root
 RUN chmod a+x run.sh
-SHELL ["./run.sh"]
+CMD ["./run.sh"]

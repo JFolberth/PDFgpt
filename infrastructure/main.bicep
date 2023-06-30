@@ -20,7 +20,7 @@ var nameSuffix = toLower('${baseName}-${environmentName}-${regionReference[locat
 var nameShort = toLower('${baseName}${environmentName}${regionReference[location]}')
 var language = 'Bicep'
 var dnsLabel = 'pdfgptdemo'
-var aciImageNameTag = 'pdfgptDemo:latest'
+var aciImageNameTag = 'pdfgptdemo:latest'
 var aciImage = 'streamlitapp'
 
 /* Since we are mismatching scopes with a deployment at subscription and resource at Resource Group
@@ -63,7 +63,12 @@ module acr 'modules/azureContainerRegistry.module.bicep' ={
     location: location
     acrName: nameShort
     language: language
+    keyVaultName: keyVault.outputs.keyVaultNameOutput
   }
+}
+resource keyVaultValues 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  scope: resourceGroup
+  name: keyVault.outputs.keyVaultNameOutput
 }
 
 module aci 'modules/azureContainerInstance.module.bicep' ={
@@ -77,9 +82,10 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
     dnsLabel: dnsLabel
     aciImageNameTag:'${acr.outputs.acrLoginServerOutput}/${aciImageNameTag}'
     aciImage: aciImage
-    uidName: userIdentity.outputs.userIdentityNameOutput
-    userIdentityPrincipalId: userIdentity.outputs.userIdentityPrincipalOutput
-    keyVaultName: keyVault.outputs.keyVaultNameOutput
+    uidName: userIdentity.outputs.userAssignedNameOutput
+    keyVaultName: keyVaultValues.name
+    acrUserName: keyVaultValues.getSecret('acr-username')
+    acrAdminPassword: keyVaultValues.getSecret('acr-password')
   }
 }
 
@@ -101,5 +107,16 @@ module keyVault 'modules/azureKeyVault.module.bicep'={
     location: location
     keyVaultName: nameSuffix
     language: language
+  }
+}
+
+module adl 'modules/storageAccount.module.bicep'={
+  name: 'storageAccountModule'
+  scope: resourceGroup
+  params:{
+    location: location
+    storageAccountName: nameSuffix
+    language: language
+    uidName: userIdentity.outputs.userAssignedNameOutput
   }
 }

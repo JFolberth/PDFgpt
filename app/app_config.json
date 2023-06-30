@@ -1,4 +1,5 @@
 {
     "storage_container": "rawdata",
-    "connection_string": "DefaultEndpointsProtocol=https;AccountName=aoaisearchstoragepoc;AccountKey=CnxfkrF5sHyLTke/NU9+162uoquMT3zZhDhOQh79CGrUoLafOWPZypp3tvXl15bQy9xXJyBwifnE+AStTOTAuQ==;EndpointSuffix=core.windows.net"
+    "storage_account_url": "https://sapdfgptdemodeveus.blob.core.windows.net/",
+    "key_vault_name": "kv-pdfgptdemo-dev-eus"
 }

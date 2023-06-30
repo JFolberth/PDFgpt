@@ -40,27 +40,40 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 
 #setting up some global variable
-deployment_name = 'gpt-4'
-model = 'gpt-4'
+deployment_name = 'gpt-3.5-turbo'
+model = 'gpt-3.5-turbo'
 embed_engine = 'text-embedding-ada-002'
 SECTION_TO_EXCLUDE = ['title', 'sectionHeading', 'footnote', 'pageHeader', 'pageFooter', 'pageNumber']
 PAGES_PER_EMBEDDINGS = 1
 encoding_name ='cl100k_base'
 
-#keyVaultName = "kv-pdfgpt-dev-eus"
-#KVUri = f"https://{keyVaultName}.vault.azure.net"
-#credential = DefaultAzureCredential()
-#client = SecretClient(vault_url=KVUri, credential=credential)
+def check_config_data(config_data):
+    if not "storage_container" in config_data:
+        return False
+    if not "key_vault_name" in config_data:
+        return False
+    return True
+def read_config_data(filename):
+    config_data = json.loads(open(filename).read())
+    if not check_config_data(config_data):
+        print("Config data is not valid")
+        raise Exception("Config data is not valid")
+    return config_data
+config_data = read_config_data("app/app_config.json")
+KVUri = f"https://{config_data['key_vault_name']}.vault.azure.net"
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KVUri, credential=credential)
+account_url= config_data['storage_account_url']
 #setting up the keys
 openai.api_type = "azure"
-openai.api_base = "https://aoaisearchpoc.openai.azure.com/"
+openai.api_base = client.get_secret('openai-endpoint').value
 openai.api_version = "2023-03-15-preview"
-openai.api_key = "2944ca1241b84a70bbc00395d3b0d984"
-os.environ['OPENAI_API_KEY'] = openai.api_key
+openai.api_key = client.get_secret('openai-key').value
+os.environ['OPENAI_API_KEY'] = openai.api_key 
 os.environ['OPENAI_API_BASE'] = openai.api_base
 os.environ['OPENAI_API_VERSION'] = openai.api_version 
 os.environ['OPENAI_API_TYPE'] = openai.api_type
-
+default_credential = DefaultAzureCredential()
 
 
 
@@ -74,19 +87,6 @@ def process_pdf(data):
     return pages
 
 
-def read_config_data(filename):
-    config_data = json.loads(open(filename).read())
-    if not check_config_data(config_data):
-        print("Config data is not valid")
-        raise Exception("Config data is not valid")
-    return config_data
-
-def check_config_data(config_data):
-    if not "storage_container" in config_data:
-        return False
-    if not "connection_string" in config_data:
-        return False
-    return True
 
 def list_blobs(blob_service_client: BlobServiceClient, container_name):
     container_client = blob_service_client.get_container_client(container_name)
@@ -104,10 +104,10 @@ def check_process_file(current_filename):
         return False
     return True
 
-def get_blob_service_client_connection_string(connection_string):
+def get_blob_service_client_connection_string(account_url):
     
     # Create the BlobServiceClient object
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    blob_service_client = BlobServiceClient(account_url, credential=default_credential)
 
     return blob_service_client
 
@@ -287,13 +287,9 @@ st.sidebar.markdown(
     """
 )
 
-#config_data = read_config_data("./app_config.json")
-config_data = {
-    "storage_container": "rawdata",
-    "connection_string": "DefaultEndpointsProtocol=https;AccountName=aoaisearchstoragepoc;AccountKey=CnxfkrF5sHyLTke/NU9+162uoquMT3zZhDhOQh79CGrUoLafOWPZypp3tvXl15bQy9xXJyBwifnE+AStTOTAuQ==;EndpointSuffix=core.windows.net"
-}
+
 index = load_FAISS_vector_store(config_data)
-st.success("Intiial embeddings done.", icon="✅")
+st.success("Initial embeddings done.", icon="✅")
 
 
  
