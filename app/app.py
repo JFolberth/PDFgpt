@@ -1,7 +1,6 @@
 # Import necessary modules
 import re
 import os
-import time
 from io import BytesIO
 import json
 from typing import Any, Dict, List
@@ -40,8 +39,8 @@ from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 
 #setting up some global variable
-deployment_name = 'gpt-3.5-turbo'
-model = 'gpt-3.5-turbo'
+deployment_name = 'gpt-35-turbo'
+model = 'gpt-35-turbo'
 embed_engine = 'text-embedding-ada-002'
 SECTION_TO_EXCLUDE = ['title', 'sectionHeading', 'footnote', 'pageHeader', 'pageFooter', 'pageNumber']
 PAGES_PER_EMBEDDINGS = 1
@@ -112,9 +111,8 @@ def get_blob_service_client_connection_string(account_url):
     return blob_service_client
 
 def load_FAISS_vector_store(config_data):
-    connection_string = config_data["connection_string"]
     input_container_name = config_data["storage_container"]
-    blob_service_client = get_blob_service_client_connection_string(connection_string)
+    blob_service_client = get_blob_service_client_connection_string(account_url)
     blob_list = list_blobs(blob_service_client, input_container_name)
     first_run = True
     index = None
