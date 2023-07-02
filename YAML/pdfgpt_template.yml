@@ -30,7 +30,7 @@ stages:
     templateDirectory: ${{ parameters.templateDirectory }}
     
 - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/iac_gpt_35')}}:
-  - template: stages/docker_docker_deploy_stage.yml@templates
+  - template: stages/docker_bicep_deploy_stage.yml@templates
     parameters:
       environmentObjects: ${{ parameters.environmentObjects }}
       templateFileName: ${{ parameters.templateFileName }}
