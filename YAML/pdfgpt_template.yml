@@ -15,7 +15,7 @@ parameters:
   default: 'pdftgpt'
 
 stages:
-- template: stages/bicep_build_stage.yml@templates
+- template: stages/bicep_docker_build_stage.yml@templates
   parameters:
     environmentObjects: ${{ parameters.environmentObjects }}
     templateFileName: ${{ parameters.templateFileName }}
