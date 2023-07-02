@@ -8,9 +8,6 @@ parameters:
 - name: templateFileName
   type: string
   default: 'main'
-- name: templateDirectory
-  type: string 
-  default: 'infrastructure'
 - name: serviceName
   type: string
   default: 'pdfgptdemo'
@@ -27,7 +24,6 @@ stages:
     environmentObjects: ${{ parameters.environmentObjects }}
     templateFileName: ${{ parameters.templateFileName }}
     serviceName: ${{ parameters.serviceName }}
-    templateDirectory: ${{ parameters.templateDirectory }}
     
 - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/iac_gpt_35')}}:
   - template: stages/docker_bicep_deploy_stage.yml@templates
