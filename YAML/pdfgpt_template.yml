@@ -16,7 +16,7 @@ parameters:
   default: 'pdftgptdemo'
 - name: containerRegistryServiceConnection
   type: string
-  default: 'pdftgptdemo'
+  default: 'acrpdftgptdemo'
 - name: repositoryName
   type: string
   default: 'pdftgptdemo'
