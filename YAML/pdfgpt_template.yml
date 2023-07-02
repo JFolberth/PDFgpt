@@ -13,13 +13,13 @@ parameters:
   default: 'infrastructure'
 - name: serviceName
   type: string
-  default: 'pdftgptdemo'
+  default: 'pdfgptdemo'
 - name: containerRegistryServiceConnection
   type: string
-  default: 'acrpdftgptdemo'
+  default: 'acrpdfgptdemo'
 - name: repositoryName
   type: string
-  default: 'pdftgptdemo'
+  default: 'pdfgptdemo'
 
 stages:
 - template: stages/bicep_docker_build_stage.yml@templates
