@@ -22,7 +22,7 @@ stages:
     serviceName: ${{ parameters.serviceName }}
     templateDirectory: ${{ parameters.templateDirectory }}
     
-- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/iac_gpt_35')}}:
   - template: stages/bicep_deploy_stage.yml@templates
     parameters:
       environmentObjects: ${{ parameters.environmentObjects }}
