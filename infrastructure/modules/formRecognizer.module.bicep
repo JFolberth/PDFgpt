@@ -21,7 +21,7 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2022-12-01'={
   location: location
   kind: 'FormRecognizer'
   sku: {
-    name: 'S0'
+    name: formRecognizerSKU
   }
   properties: {
     customSubDomainName: formRecognizerName

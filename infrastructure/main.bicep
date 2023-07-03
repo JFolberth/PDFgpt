@@ -82,7 +82,7 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
     dnsLabel: dnsLabel
     aciImageNameTag:'${acr.outputs.acrLoginServerOutput}/${aciImageNameTag}'
     aciImage: aciImage
-    uidName: userIdentity.outputs.userAssignedNameOutput
+    uidName: userIdentity.outputs.userIdentityNameOutput
     keyVaultName: keyVaultValues.name
     acrUserName: keyVaultValues.getSecret('acr-username')
     acrAdminPassword: keyVaultValues.getSecret('acr-password')
@@ -117,6 +117,6 @@ module adl 'modules/storageAccount.module.bicep'={
     location: location
     storageAccountName: nameSuffix
     language: language
-    uidName: userIdentity.outputs.userAssignedNameOutput
+    uidName: userIdentity.outputs.userIdentityNameOutput
   }
 }

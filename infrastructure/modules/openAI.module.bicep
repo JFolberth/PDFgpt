@@ -23,6 +23,9 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
   kind: 'OpenAI'
   properties: {
   }
+  tags:{
+    language:language
+  }
 }
 
 /*
