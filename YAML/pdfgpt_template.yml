@@ -25,7 +25,7 @@ stages:
     templateFileName: ${{ parameters.templateFileName }}
     serviceName: ${{ parameters.serviceName }}
 
-- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/main')}}:
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/iac_gpt_35')}}:
   - template: stages/docker_bicep_deploy_stage.yml@templates
     parameters:
       environmentObjects: ${{ parameters.environmentObjects }}
