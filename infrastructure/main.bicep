@@ -118,5 +118,6 @@ module adl 'modules/storageAccount.module.bicep'={
     storageAccountName: nameSuffix
     language: language
     uidName: userIdentity.outputs.userIdentityNameOutput
+    keyVaultName:keyVault.outputs.keyVaultNameOutput
   }
 }

@@ -19,7 +19,11 @@ param uidName string
   'Standard_ZRS'
 ])
 param storageAccountType string = 'Standard_LRS'
+param keyVaultName string
 
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+}
 
 resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: uidName
@@ -66,4 +70,11 @@ resource saBlobContributorRBAC 'Microsoft.Authorization/roleAssignments@2022-04-
     principalType: 'ServicePrincipal'
   }
 
+}
+resource storageAccountEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
+  parent : keyVault
+  name: 'sa-endpoint'
+  properties: {
+    value:  sa.properties.primaryEndpoints.blob
+  }
 }

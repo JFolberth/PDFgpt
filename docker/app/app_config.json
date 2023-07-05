@@ -1,5 +1,4 @@
 {
     "storage_container": "rawdata",
-    "storage_account_url": "https://sapdfgptdemodeveus.blob.core.windows.net/",
-    "key_vault_name": "kv-pdfgptdemo-dev-eus"
+    "key_vault_name": ""
 }

@@ -62,7 +62,7 @@ config_data = read_config_data("app/app_config.json")
 KVUri = f"https://{config_data['key_vault_name']}.vault.azure.net"
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVUri, credential=credential)
-account_url= config_data['storage_account_url']
+account_url= client.get_secret('sa-endpoint').value
 #setting up the keys
 openai.api_type = "azure"
 openai.api_base = client.get_secret('openai-endpoint').value
