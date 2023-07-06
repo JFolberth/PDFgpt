@@ -7,7 +7,7 @@ dependencies:
  - pip
  - pip:
    - streamlit
-   - langchain==v0.0.147
+   - langchain==v0.0.225
    - openai
    - tiktoken
    - faiss-cpu
