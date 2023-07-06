@@ -23,26 +23,31 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
   kind: 'OpenAI'
   properties: {
   }
+  tags:{
+    language:language
+  }
 }
 
-resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+
+resource gpt4Deployment 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'gpt-35-turbo'
   properties: {
     model: {
       format: 'OpenAI'
       name: 'gpt-35-turbo'
-      version: '0314'
+      version: '0301'
       
     }
    scaleSettings: {
     scaleType: 'Standard'
-    capacity: 10
+    capacity: null
    }
   }
 }
 
-resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+
+resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2022-12-01'={
   parent: openAI
   name: 'text-embedding-ada-002'
   properties: {
@@ -54,7 +59,7 @@ resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-0
     }
    scaleSettings: {
     scaleType: 'Standard'
-    capacity: 120
+    capacity: null
    }
    raiPolicyName:'Microsoft.Default'
   }

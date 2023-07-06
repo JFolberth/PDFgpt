@@ -1,0 +1,35 @@
+parameters:
+- name: environmentObjects
+  type: object
+  default:
+    - environmentName: 'dev'
+      regionAbrvs: ['eus']
+      tags: 'latest'
+- name: templateFileName
+  type: string
+  default: 'main'
+- name: serviceName
+  type: string
+  default: 'pdfgptdemo'
+- name: containerRegistryServiceConnection
+  type: string
+  default: 'acrpdfgptdemo'
+- name: repositoryName
+  type: string
+  default: 'pdfgptdemo'
+
+stages:
+- template: stages/bicep_docker_build_stage.yml@templates
+  parameters:
+    environmentObjects: ${{ parameters.environmentObjects }}
+    templateFileName: ${{ parameters.templateFileName }}
+    serviceName: ${{ parameters.serviceName }}
+
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/iac_gpt_35')}}:
+  - template: stages/docker_bicep_deploy_stage.yml@templates
+    parameters:
+      environmentObjects: ${{ parameters.environmentObjects }}
+      templateFileName: ${{ parameters.templateFileName }}
+      serviceName: ${{ parameters.serviceName }}
+      containerRegistryServiceConnection: ${{ parameters.containerRegistryServiceConnection }}
+      repositoryName: ${{ parameters.repositoryName }}

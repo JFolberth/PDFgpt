@@ -22,8 +22,23 @@ param dnsLabel string
 param acrName string
 @description('User Assigned Identity')
 param uidName string
-@description('User Assigned Principal')
-param userIdentityPrincipalId string
+@description('ACR Admin Password')
+@secure()
+param acrAdminPassword string
+@description('ACR Admin Password')
+@secure()
+param acrUserName string
+
+
+resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: uidName
+}
+
+var userAssignedIdentity = {
+  Default:{
+    '${uid.id}' : {}
+  }
+}
 
 @description('Name of KeyVault to store values in')
 param keyVaultName string
@@ -31,6 +46,7 @@ param keyVaultName string
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: keyVaultName
 }
+
 @description('This is the built-in ACR Pull RBAC role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
 resource acrPullRBAC 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
   scope: subscription()
@@ -47,25 +63,21 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existin
   name: acrName
 }
 
-resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
-  name: uidName
-}
-
 resource aci 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
   name: 'aci-${aciName}'
   location: location
   tags: {
     language: language
   }
-  identity: {
+ 
+ identity: {
     type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${userIdentityPrincipalId}': {}
-    }
+    userAssignedIdentities: userAssignedIdentity.Default
   }
   properties: {
     sku: aciSKU
     containers: [
+     
       {
       name: aciImage
       properties:{
@@ -87,6 +99,7 @@ resource aci 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
           }
         }
       }
+      
       }
     ]
     ipAddress: {
@@ -104,7 +117,18 @@ resource aci 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
       dnsNameLabel: dnsLabel
     }
     osType: osType
+    imageRegistryCredentials: [
+      {
+        server: acr.properties.loginServer
+        username: acrUserName
+        password: acrAdminPassword
+      }
+    ]
+
   }
+  dependsOn: [
+    aciPullRBAC
+  ]
 }
 
 resource aciPullRBAC 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
@@ -115,7 +139,9 @@ resource aciPullRBAC 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalId: uid.properties.principalId
     principalType: 'ServicePrincipal'
   }
+
 }
+
 
 resource keyVaultUserRBAC 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(keyVault.id, uid.id, keyVaultSecretUserRBAC.id)
@@ -125,4 +151,7 @@ resource keyVaultUserRBAC 'Microsoft.Authorization/roleAssignments@2022-04-01' =
     principalId: uid.properties.principalId
     principalType: 'ServicePrincipal'
   }
+  dependsOn: [
+    uid, keyVault
+  ]
 }
