@@ -66,6 +66,7 @@ module acr 'modules/azureContainerRegistry.module.bicep' ={
     keyVaultName: keyVault.outputs.keyVaultNameOutput
   }
 }
+
 resource keyVaultValues 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   scope: resourceGroup
   name: keyVault.outputs.keyVaultNameOutput
@@ -110,7 +111,7 @@ module keyVault 'modules/azureKeyVault.module.bicep'={
   }
 }
 
-module adl 'modules/storageAccount.module.bicep'={
+module storageAccount 'modules/storageAccount.module.bicep'={
   name: 'storageAccountModule'
   scope: resourceGroup
   params:{
@@ -121,3 +122,4 @@ module adl 'modules/storageAccount.module.bicep'={
     keyVaultName:keyVault.outputs.keyVaultNameOutput
   }
 }
+
