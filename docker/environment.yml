@@ -14,4 +14,7 @@ dependencies:
    - pypdf
    - streamlit
    - azure.ai.formrecognizer
-   - azure-cosmos
+   - azure-identity
+   - azure-keyvault
+   - azure-keyvault-secrets
+   - azure-storage-blob

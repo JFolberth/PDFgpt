@@ -63,9 +63,15 @@ module acr 'modules/azureContainerRegistry.module.bicep' ={
     location: location
     acrName: nameShort
     language: language
+    keyVaultName: keyVault.outputs.keyVaultNameOutput
   }
 }
-/*
+
+resource keyVaultValues 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  scope: resourceGroup
+  name: keyVault.outputs.keyVaultNameOutput
+}
+
 module aci 'modules/azureContainerInstance.module.bicep' ={
   name: 'aciModule'
   scope: resourceGroup
@@ -77,13 +83,13 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
     dnsLabel: dnsLabel
     aciImageNameTag:'${acr.outputs.acrLoginServerOutput}/${aciImageNameTag}'
     aciImage: aciImage
-    uidName: userIdentity.outputs.userAssignedIdentityOutput
-    keyVaultName: keyVault.outputs.keyVaultNameOutput
-    acrAdminPassword:keyVaultReference.getSecret('acr-password')
-    acrUserName:keyVaultReference.getSecret('acr-userName')
+    uidName: userIdentity.outputs.userIdentityNameOutput
+    keyVaultName: keyVaultValues.name
+    acrUserName: keyVaultValues.getSecret('acr-username')
+    acrAdminPassword: keyVaultValues.getSecret('acr-password')
   }
 }
-*/
+
 module openAI 'modules/openAI.module.bicep'={
   name: 'openAIModule'
   scope: resourceGroup
@@ -104,7 +110,18 @@ module keyVault 'modules/azureKeyVault.module.bicep'={
     language: language
   }
 }
-resource keyVaultReference 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+
+module storageAccount 'modules/storageAccount.module.bicep'={
+  name: 'storageAccountModule'
   scope: resourceGroup
-  name: keyVault.outputs.keyVaultNameOutput
+  params:{
+    location: location
+    storageAccountName: nameSuffix
+    language: language
+    uidName: userIdentity.outputs.userIdentityNameOutput
+    keyVaultName:keyVault.outputs.keyVaultNameOutput
+  }
 }
+
+
+
