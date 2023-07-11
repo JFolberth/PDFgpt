@@ -76,8 +76,8 @@ default_credential = DefaultAzureCredential()
 
 
 
-endpoint = "https://formrecognizerpocdev.cognitiveservices.azure.com/"
-key = "bca71fc14263496faa8a65b9c841ef51"
+endpoint = client.get_secret('form-recognizer-endpoint').value
+key = client.get_secret('form-recognizer-key').value
 
 
 def process_pdf(data):
