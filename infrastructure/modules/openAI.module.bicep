@@ -14,7 +14,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
 }
 
 
-resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
+resource openAI 'Microsoft.CognitiveServices/accounts@2023-10-01-preview'= {
   name: openAIName
   location: location
   sku: {
@@ -29,7 +29,7 @@ resource openAI 'Microsoft.CognitiveServices/accounts@2023-05-01'= {
 }
 
 
-resource gpt35Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+resource gpt35Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview'={
   parent: openAI
   name: 'gpt-35-turbo'
   properties: {
@@ -47,7 +47,7 @@ resource gpt35Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
 }
 
 
-resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01'={
+resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview'={
   parent: openAI
   name: 'text-embedding-ada-002'
   properties: {
