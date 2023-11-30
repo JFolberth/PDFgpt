@@ -39,10 +39,7 @@ resource gpt35Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
       version: '0301'
       
     }
-   scaleSettings: {
-    scaleType: 'Standard'
-    capacity: 120
-   }
+
   }
 }
 
@@ -57,10 +54,6 @@ resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-1
       version: '2'
       
     }
-   scaleSettings: {
-    scaleType: 'Standard'
-    capacity: 120
-   }
    raiPolicyName:'Microsoft.Default'
   }
 }
