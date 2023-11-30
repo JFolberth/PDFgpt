@@ -90,16 +90,7 @@ module aci 'modules/azureContainerInstance.module.bicep' ={
   }
 }
 
-module openAI 'modules/openAI.module.bicep'={
-  name: 'openAIModule'
-  scope: resourceGroup
-  params:{
-    location: location
-    openAIName: nameSuffix
-    language: language
-    keyVaultName: keyVault.outputs.keyVaultNameOutput
-  }
-}
+
 
 module keyVault 'modules/azureKeyVault.module.bicep'={
   name: 'keyVaultModule'

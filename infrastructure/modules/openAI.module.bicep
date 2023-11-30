@@ -46,7 +46,22 @@ resource gpt35Deployment 'Microsoft.CognitiveServices/accounts/deployments@2023-
 }
 
 
-
+resource textembeddings 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview'={
+  parent: openAI
+  name: 'text-embedding-ada-002'
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'text-embedding-ada-002'
+      version: '2'
+      
+    }
+   sku: {
+    capacity: 120
+   }
+   raiPolicyName:'Microsoft.Default'
+  }
+}
 
 resource openAIEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
   parent : keyVault
