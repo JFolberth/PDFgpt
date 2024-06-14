@@ -11,7 +11,7 @@ trigger:
 pool: 
   name: 'vmss-mdo-dev-eus'
   demands:
-  - Agent.OS -equals Windows
+  - Agent.OS -equals Windows_NT
 
 stages:
     - template: pdfgpt_template.yml
