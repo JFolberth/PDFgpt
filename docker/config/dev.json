@@ -1,10 +1,10 @@
 {
     "http": {
       "server": {
-        "server_name": "pdfgptdemo.eastus.azurecontainer.io"
+        "server_name": "pdfgptdemoext.eastus.azurecontainer.io"
       }
     },
       "server": {
-        "server_name": "pdfgptdemo.eastus.azurecontainer.io"
+        "server_name": "pdfgptdemoext.eastus.azurecontainer.io"
       }
   }
