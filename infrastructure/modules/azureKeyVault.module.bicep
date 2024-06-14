@@ -8,7 +8,7 @@ param location string
 @description('What language was used to deploy this resource')
 param language string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01'={
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01'={
 name: toLower('kv-${keyVaultName}')
 location: location
 tags: {

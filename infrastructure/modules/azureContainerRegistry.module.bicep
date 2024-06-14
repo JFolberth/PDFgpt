@@ -10,14 +10,14 @@ param language string
 
 param keyVaultName string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
 
 
 
 
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
+resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: toLower('acr${acrName}')
   location: location
   sku: {
@@ -34,14 +34,14 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
   }
 }
 
-resource acrUserName 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
+resource acrUserName 'Microsoft.KeyVault/vaults/secrets@2023-07-01'= {
   parent : keyVault
   name: 'acr-username'
   properties: {
     value:  acr.listCredentials().username
   }
 }
-resource acrPassword 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
+resource acrPassword 'Microsoft.KeyVault/vaults/secrets@2023-07-01'= {
   parent : keyVault
   name: 'acr-password'
   properties: {

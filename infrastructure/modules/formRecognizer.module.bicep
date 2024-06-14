@@ -35,14 +35,14 @@ resource formRecognizer 'Microsoft.CognitiveServices/accounts@2022-12-01'={
 
 }
 
-resource formRecognizerEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
+resource formRecognizerEndpoint 'Microsoft.KeyVault/vaults/secrets@2023-07-01'= {
   parent : keyVault
   name: 'form-recognizer-endpoint'
   properties: {
     value: formRecognizer.properties.endpoint
   }
 }
-resource formRecognizerKey 'Microsoft.KeyVault/vaults/secrets@2023-02-01'= {
+resource formRecognizerKey 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
   parent : keyVault
   name: 'form-recognizer-key'
   properties: {

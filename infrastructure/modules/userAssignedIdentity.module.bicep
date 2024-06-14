@@ -5,7 +5,7 @@ param location string
 @description('What language was used to deploy this resource')
 param language string
 
-resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' = {
   name: toLower('ui-${userIdentityName}')
   location: location
   tags: {

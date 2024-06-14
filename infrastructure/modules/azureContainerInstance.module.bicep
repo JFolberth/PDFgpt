@@ -30,7 +30,7 @@ param acrAdminPassword string
 param acrUserName string
 
 
-resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+resource uid 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-preview' existing = {
   name: uidName
 }
 
@@ -43,23 +43,23 @@ var userAssignedIdentity = {
 @description('Name of KeyVault to store values in')
 param keyVaultName string
 
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: keyVaultName
 }
 
 @description('This is the built-in ACR Pull RBAC role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
-resource acrPullRBAC 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource acrPullRBAC 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
   scope: subscription()
   name: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 }
 
 @description('This is the built-in Key Vault Seceret RBAC role. See https://docs.microsoft.com/azure/role-based-access-control/built-in-roles#contributor')
-resource keyVaultSecretUserRBAC 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
+resource keyVaultSecretUserRBAC 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
   scope: subscription()
   name: '4633458b-17de-408a-b874-0445c86b69e6'
 }
 
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
+resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' existing = {
   name: acrName
 }
 

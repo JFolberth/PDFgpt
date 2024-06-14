@@ -114,5 +114,15 @@ module storageAccount 'modules/storageAccount.module.bicep'={
   }
 }
 
+/* module openAI 'modules/openAI.module.bicep'={
+  name: 'openAIModule'
+  scope: resourceGroup
+  params:{
+    location: location
+    openAIName: nameSuffix
+    language: language
+    keyVaultName: keyVault.outputs.keyVaultNameOutput
+  }
+} */
 
 
