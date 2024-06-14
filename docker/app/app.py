@@ -66,7 +66,7 @@ account_url= client.get_secret('sa-endpoint').value
 #setting up the keys
 openai.api_type = "azure"
 openai.api_base = client.get_secret('openai-endpoint').value
-openai.api_version = "2023-03-15-preview"
+openai.api_version = "2023-10-01-preview"
 openai.api_key = client.get_secret('openai-key').value
 os.environ['OPENAI_API_KEY'] = openai.api_key 
 os.environ['OPENAI_API_BASE'] = openai.api_base

@@ -8,8 +8,8 @@ resources:
 trigger:
 - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: 
+  name: 'vmss-mdo-dev-eus'
 
 stages:
     - template: pdfgpt_template.yml
