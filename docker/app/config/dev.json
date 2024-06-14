@@ -1,5 +1,5 @@
 {
 "server": {
-    "key_vault_name": "kv-pdfgptdemo-dev-eus"
+    "key_vault_name": "kv-pdfgptdemoext-dev-eus"
   }
 }
