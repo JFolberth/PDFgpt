@@ -1,7 +1,7 @@
 @description('Location for all resources.')
 param location string
 @description('Base name that will appear for all resources.') 
-param baseName string = 'pdfgptdemo'
+param baseName string = 'pdfgptdemoext'
 @description('Three letter environment abreviation to denote environment that will appear in all resource names') 
 param environmentName string = 'dev'
 @description('Form Recognizer Sku')
@@ -19,8 +19,8 @@ var regionReference = {
 var nameSuffix = toLower('${baseName}-${environmentName}-${regionReference[location]}')
 var nameShort = toLower('${baseName}${environmentName}${regionReference[location]}')
 var language = 'Bicep'
-var dnsLabel = 'pdfgptdemo'
-var aciImageNameTag = 'pdfgptdemo:latest'
+var dnsLabel = 'pdfgptdemoext'
+var aciImageNameTag = 'pdfgptdemoext:latest'
 var aciImage = 'streamlitapp'
 
 /* Since we are mismatching scopes with a deployment at subscription and resource at Resource Group
